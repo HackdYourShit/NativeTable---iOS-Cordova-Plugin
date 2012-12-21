@@ -57,7 +57,7 @@ NativeTable usage example from JavaScript code
 	nt.showTable();
 	
 	// to hide the UITableView
-	nt.hideTable();
+	// nt.hideTable();
 
 <br />
 
