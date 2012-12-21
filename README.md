@@ -25,45 +25,40 @@ Installing NativeTable
 NativeTable usage example from JavaScript code
 -------------------------------------------------------------
 
-// prepare table data 
-// table data must be an array of items containing 'textLabel' and 'detailTextLabel' key/value pairs
-var myTableData = new Array();
-for(var i = 0; i < 300; i++){
-	myTableData[i] = {
-					   'textLabel' :  "Item #" + i,
-					   'detailTextLabel' :  "Description #" + i
-						};
-}
+	// prepare table data 
+	// IMPORTANT!!! table data must be an array of items containing 'textLabel' and 'detailTextLabel' key/value pairs
+	var myTableData = new Array();
+	for(var i = 0; i < 300; i++){
+		myTableData[i] = {
+						   'textLabel' :  "Item #" + i,
+						   'detailTextLabel' :  "Description #" + i
+							};
+	}
+	
+	// create a reference to the NativeTable Object
+	var nt = window.plugins.nativeTable;
+	
+	// create the UITableView instance (height parameter is required)
+	nt.createTable({'height':250});
+	
+	// assign a title to the table heade
+	nt.setTableTitle('My Native Table');
+	
+	// set the table data
+	nt.setTableData(myTableData);
+	
+	// set the callback function for the row selections
+	nt.setRowSelectCallBackFunction(function(rowId){
+													// callback code goes here
+												   alert("Row " + rowId + " Selected!");
+													});
+								   
+	// to display the UITableView
+	nt.showTable();
+	
+	// to hide the UITableView
+	nt.hideTable();
 
-// create a reference to the NativeTable Object
-var nt = window.plugins.nativeTable;
-
-// create the UITableView instance (height parameter is required)
-nt.createTable({'height':250});
-
-// assign a title to the table heade
-nt.setTableTitle('My Native Table');
-
-// set the table data
-nt.setTableData(myTableData);
-
-// set the callback function for the row selections
-nt.setRowSelectCallBackFunction(function(rowId){
-												// callback code goes here
-											   alert("Row " + rowId + " Selected!");
-							   					});
-							   
-// to display the UITableView
-nt.showTable();
-
-// to hide the UITableView
-nt.hideTable();
-
-<br />
-
-BUGS?
------
-Please report to spartak@gmail.com   
 <br />
 
 
