@@ -51,10 +51,12 @@ NativeTable usage example from JavaScript code
       for(var i = 0; i < 300; i++){
         //sectionheaders should be ordered by JS, the plugin wont handle it for you
         //textLabel,detailTextLabel,icon,sectionHeader all required
+        //icon = 'none' || 'greyarrow' || 'bluearrow'
+
         tableView.push({
                  'textLabel' : "Item: " + i,
                  'detailTextLabel' : "Description: " + i,
-                 'icon': "none",
+                 'icon': "bluearrow",
                  'sectionHeader': "Section 1",
                  'otherstuff': "foobar"
           });
