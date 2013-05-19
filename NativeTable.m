@@ -398,7 +398,9 @@
     BOOL isCurrentSection = false;
     
     for(int i = 0; i < [tmp count]; i++ ) {
+        
         NSString *thisHeader = [[tmp objectAtIndex:i] valueForKey:@"sectionHeader"];
+        NSLog(@"Header: %@", thisHeader);
         if ( ![thisHeader isEqualToString:loopedHeader]) {
             loopedHeader = thisHeader;
             isCurrentSection = false;
@@ -411,14 +413,16 @@
         if (isCurrentSection) {
             if (sectionRowCounter == row ) {
                 actualRow = rowCounter;
+                if (isFiltered) {
+                    //we have the searched item, but we need to pull the original index
+                    actualRow = [[[tmp objectAtIndex:i] objectForKey:@"index"] intValue];
+                }
             }
             sectionRowCounter++;
         }
         rowCounter++;
     }
-    //    NSLog(@"Section: %d Count: %d", section, rowsInSection);
     [tmp release];
-    
     
     NSString * jsCallBack = [NSString stringWithFormat:@"window.plugins.NativeTable._onTableViewRowSelect(%d);", actualRow];
     [self.webView stringByEvaluatingJavaScriptFromString:jsCallBack];
