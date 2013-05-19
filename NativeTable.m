@@ -177,7 +177,8 @@
     
     for(int i = 0; i < [_mainTableData count]; i++ ) {
         NSRange range = [[[_mainTableData objectAtIndex:i] valueForKey:@"textLabel"] rangeOfString:term options:NSCaseInsensitiveSearch];
-        if (range.location != NSNotFound) {
+        NSRange range2 = [[[_mainTableData objectAtIndex:i] valueForKey:@"detailTextLabel"] rangeOfString:term options:NSCaseInsensitiveSearch];
+        if (range.location != NSNotFound || range2.location != NSNotFound  ) {
             [[_mainTableData objectAtIndex:i] setObject:[NSString stringWithFormat:@"%d", i] forKey:@"index"];
             [results addObject: [_mainTableData objectAtIndex:i]];
         }
@@ -401,7 +402,7 @@
 	cell.detailTextLabel.font = [UIFont systemFontOfSize:12];
     
     NSString *icon = [item valueForKey:@"icon"];
-    NSLog(@"icon: %@", icon);
+    
     if ([icon isEqualToString:@"none"]) {
         cell.accessoryType = UITableViewCellAccessoryNone;
     } else if ([icon isEqualToString:@"greyarrow"]) {

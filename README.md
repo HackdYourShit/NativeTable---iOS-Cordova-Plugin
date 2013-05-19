@@ -12,11 +12,20 @@ This Fork (treason)
 - Added left/right buttons in nav w/ callbacks
 - Added slide up/down fade transitions
 - Added optional chevron on list items
-
+- You can create heiarchy navigation by setting like so:
+```
+        nt.setRowSelectCallBackFunction(function(rowId) {
+          var item = tableView[rowId];
+          nt.hideTable(function() {
+            //reinitiate the table here by passing new data
+          });
+        });
+```
 
 Pre-requisites
 -------------------------------------------------------------
 ~~Tested and known to be working with Cordova Version 1.7.0~~
+<br />
 Tested and known to be working with Cordova Version 2.2.0 (treason)
 
 <br />
@@ -36,65 +45,54 @@ Installing NativeTable
 
 NativeTable usage example from JavaScript code
 -------------------------------------------------------------
+      var tableView = []; 
 
-    var myTableData = new Array();
-    for(var i = 0; i < 300; i++){
-        myTableData[i] = {
-                           'textLabel' :  "Item #" + i,
-                           'detailTextLabel' :  "Description #" + i,
-                           'icon': 'greyarrow',
-                           'sectionHeader': (i < 15) ? 'first 15' : 'last 15'
-                            };
-    }
+      //create an array of items for the listview
+      for(var i = 0; i < 300; i++){
+        //sectionheaders should be ordered by JS, the plugin wont handle it for you
+        //textLabel,detailTextLabel,icon,sectionHeader all required
+        tableView.push({
+                 'textLabel' : "Item: " + i,
+                 'detailTextLabel' : "Description: " + i,
+                 'icon': "none",
+                 'sectionHeader': "Section 1",
+                 'otherstuff': "foobar"
+          });
+      }
 
-    // create a reference to the NativeTable Object
-    var nt = window.plugins.NativeTable;
+      var nt = window.plugins.NativeTable;
 
-    // create the UITableView 
-    nt.createTable({
-      'height': $(window).height(), 
-      'showSearchBar': true, 
-      'showNavBar': true, 
-      'navTitle': 'Commands',
-      'navBarColor': 'black',
-      'showRightButton': true, 
-      'RightButtonText': 'Close',
-      'showBackButton': false
-    });
+      //all required paramaters
+      //navBarColor = black or blue
+      nt.createTable({
+        'height': 500, 
+        'showSearchBar': true, 
+        'showNavBar': true, 
+        'navTitle': "Channels",
+        'navBarColor': 'black',
+        'showRightButton': true, 
+        'RightButtonText': 'Close',
+        'showBackButton': false
+      });
 
-    nt.onRightButtonTap(function(){
-        //console.log("foo");
-       nt.hideTable(function() {
-        console.log("hidden");
-       });
-    });
+      nt.onRightButtonTap(function(){ //fired when right button is clicked
+           //trigger hide tableview
+           nt.hideTable(function() { 
+              //callback when table is hidden
+           });
+      });
+      nt.setRowSelectCallBackFunction(function(rowId) {
+        var item = tableView[rowId]; //grab the original item form the tableView array
+        //do whatever u want with it
+      });
 
-    nt.onBackButtonTap(function(){
-        console.log("foo");
-       nt.hideTable(function() {
-        console.log("hidden");
-       });
-    });
+      //send the array data to the table
+      nt.setTableData(tableView);
 
-    // assign a title to the table header
-    // /nt.setTableTitle('My Native Table');
-
-    // set the callback function for the row selections
-    nt.setRowSelectCallBackFunction(function(rowId){
-        // callback code goes here
-       alert("Row " + rowId + " Selected!");
-       nt.hideTable(function() {
-        console.log("hidden");
-       });
-    });
-
-    // set the table data
-    nt.setTableData(myTableData);
-
-    // to display the UITableView
-    nt.showTable(function() {
-        console.log("shown");
-    });
+      //show the table
+      nt.showTable(function() {
+        //table is shown callback
+      });
 
 <br />
 
