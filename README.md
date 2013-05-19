@@ -13,14 +13,14 @@ This Fork (treason)
 - Added slide up/down fade transitions
 - Added optional chevron on list items
 - You can create heiarchy navigation by setting like so:
-```
+
         nt.setRowSelectCallBackFunction(function(rowId) {
           var item = tableView[rowId];
           nt.hideTable(function() {
             //reinitiate the table here by passing new data
           });
         });
-```
+
 
 Pre-requisites
 -------------------------------------------------------------
