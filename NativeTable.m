@@ -379,14 +379,48 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    NSString *row = @"";
-    if (!isFiltered) {
-        row = [NSString stringWithFormat:@"%d", indexPath.row];
+    
+	int section = indexPath.section;
+    int row = indexPath.row;
+    
+    NSMutableArray *tmp = [[NSMutableArray alloc] init];
+    if (isFiltered) {
+        tmp = _searchResults.copy;
     } else {
-        row = [[_searchResults objectAtIndex:indexPath.row] valueForKey:@"index"];
+        tmp = _mainTableData.copy;
     }
     
-    NSString * jsCallBack = [NSString stringWithFormat:@"window.plugins.NativeTable._onTableViewRowSelect(%@);", row];
+    int counter = 0;
+    int rowCounter = 0;
+    int sectionRowCounter = 0;
+    int actualRow = 0;
+    NSString *loopedHeader = @"";
+    BOOL isCurrentSection = false;
+    
+    for(int i = 0; i < [tmp count]; i++ ) {
+        NSString *thisHeader = [[tmp objectAtIndex:i] valueForKey:@"sectionHeader"];
+        if ( ![thisHeader isEqualToString:loopedHeader]) {
+            loopedHeader = thisHeader;
+            isCurrentSection = false;
+            if (counter == section) {
+                isCurrentSection = true;
+            }
+            counter++;
+        }
+        
+        if (isCurrentSection) {
+            if (sectionRowCounter == row ) {
+                actualRow = rowCounter;
+            }
+            sectionRowCounter++;
+        }
+        rowCounter++;
+    }
+    //    NSLog(@"Section: %d Count: %d", section, rowsInSection);
+    [tmp release];
+    
+    
+    NSString * jsCallBack = [NSString stringWithFormat:@"window.plugins.NativeTable._onTableViewRowSelect(%d);", actualRow];
     [self.webView stringByEvaluatingJavaScriptFromString:jsCallBack];
 }
 
