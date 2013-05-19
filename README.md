@@ -42,7 +42,7 @@ NativeTable usage example from JavaScript code
         myTableData[i] = {
                            'textLabel' :  "Item #" + i,
                            'detailTextLabel' :  "Description #" + i,
-                           'hasChildren': true,
+                           'icon': 'greyarrow',
                            'sectionHeader': (i < 15) ? 'first 15' : 'last 15'
                             };
     }
@@ -52,13 +52,14 @@ NativeTable usage example from JavaScript code
 
     // create the UITableView 
     nt.createTable({
-        'height': $(window).height(), 
-        'showSearchBar': false, 
-        'showNavBar': true, 
-        'navTitle': 'My Native Table',
-        'showRightButton': true, 
-        'RightButtonText': 'Close',
-        'showBackButton': true
+      'height': $(window).height(), 
+      'showSearchBar': true, 
+      'showNavBar': true, 
+      'navTitle': 'Commands',
+      'navBarColor': 'black',
+      'showRightButton': true, 
+      'RightButtonText': 'Close',
+      'showBackButton': false
     });
 
     nt.onRightButtonTap(function(){

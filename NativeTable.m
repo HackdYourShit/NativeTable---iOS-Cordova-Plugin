@@ -44,6 +44,10 @@
     CGRect navBarFrame = CGRectMake(0, 0, self.webView.superview.bounds.size.width, 44.0);
     _navbar = [[UINavigationBar alloc] initWithFrame:navBarFrame];
     
+    if ( [[options objectForKey:@"navBarColor"] isEqualToString:@"black"] ) {
+        _navbar.barStyle = UIBarStyleBlack;
+    }
+    
     UINavigationItem *navItem = [UINavigationItem alloc];
     NSString *navTitle = @"";
     navTitle = [options objectForKey:@"navTitle"];
@@ -56,7 +60,6 @@
                                                                         style:UIBarButtonItemStyleDone
                                                                        target:self
                                                                        action:@selector(onRightButtonPress:) ];
-        
         navItem.rightBarButtonItem = rightButton;
         [rightButton release];
     }
@@ -82,7 +85,7 @@
 	[_mainTableView setHidden:YES];
 	[_mainTableView setDataSource:self];
 	[_mainTableView setDelegate:self];
-	
+    
     _mainTableHeight = [[options objectForKey:@"height"] floatValue];
     
     if ( [[options objectForKey:@"showSearchBar"] boolValue] == true) {
@@ -125,6 +128,9 @@
 - (void)setupSearchBar {
     
     _searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, _mainTableView.frame.size.width, 44) ];
+    _searchBar.delegate = self;
+    _searchBar.showsCancelButton = YES;
+    
     self.mainTableView.tableHeaderView = _searchBar;
     
     _searchController = [[UISearchDisplayController alloc] initWithSearchBar:_searchBar  contentsController:self.viewController ];
@@ -133,24 +139,40 @@
     _searchController.delegate = self;
     
     // scroll just past the search bar initially
-    CGPoint offset = CGPointMake(0, self.searchBar.frame.size.height);
-    self.mainTableView.contentOffset = offset;
+    //CGPoint offset = CGPointMake(0, self.searchBar.frame.size.height);
+    //self.mainTableView.contentOffset = offset;
     
 }
 
-- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString {
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)theSearchBar {
     
+}
+
+- (void)searchBarTextDidEndEditing:(UISearchBar *)theSearchBar {
+    if (_searchBar.text.length == 0) {
+        isFiltered = NO;
+        [_mainTableView reloadData];
+    } else {
+        isFiltered = YES;
+        [self filterForTerm:_searchBar.text];
+    }
+}
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    searchBar.text=@"";
+    [searchBar setShowsCancelButton:NO animated:YES];
+    [searchBar resignFirstResponder];
+}
+
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString {
     if (searchString.length == 0)
         isFiltered = NO;
     else
         isFiltered = YES;
-    
     [self filterForTerm:searchString];
     return YES;
 }
 
 - (void)filterForTerm:(NSString *)term {
-    //[searchResults removeAllObjects];
     NSMutableArray *results = [[NSMutableArray alloc] init];
     
     for(int i = 0; i < [_mainTableData count]; i++ ) {
@@ -163,7 +185,6 @@
     
     _searchResults = results.copy;
     [_mainTableView reloadData];
-    
 }
 
 - (void)showTable:(NSArray*)arguments withDict:(NSDictionary*)options
@@ -207,6 +228,9 @@
 
 - (void)hideTable:(NSArray*)arguments withDict:(NSDictionary*)options
 {
+    //    [self searchBarCancelButtonClicked:_searchBar];
+    
+    
 	if(nil == _mainTableView){
         return;
 	}
@@ -214,6 +238,10 @@
 	if(YES == [_mainTableView isHidden]){
 		return;
 	}
+    
+    [_searchBar resignFirstResponder];
+    
+    
     [self fadeOut];
 	
 	[self.webView setFrame:_originalWebViewFrame];
@@ -231,6 +259,10 @@
         tmp = _mainTableData.copy;
     }
     int counter = 1;
+    
+    if ([tmp count] == 0) {
+        return 0;
+    }
     NSString *loopedHeader = [[tmp objectAtIndex:0] valueForKey:@"sectionHeader"];
     for(int i = 0; i < [tmp count]; i++ ) {
         NSString *thisHeader = [[tmp objectAtIndex:i] valueForKey:@"sectionHeader"];
@@ -368,8 +400,14 @@
 	cell.detailTextLabel.textColor = [UIColor grayColor];
 	cell.detailTextLabel.font = [UIFont systemFontOfSize:12];
     
-	if ([[item valueForKey:@"hasChildren"] boolValue] == true) {
+    NSString *icon = [item valueForKey:@"icon"];
+    NSLog(@"icon: %@", icon);
+    if ([icon isEqualToString:@"none"]) {
+        cell.accessoryType = UITableViewCellAccessoryNone;
+    } else if ([icon isEqualToString:@"greyarrow"]) {
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    } else if ([icon isEqualToString:@"bluearrow"]) {
+        cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
     } else {
         cell.accessoryType = UITableViewCellAccessoryNone;
     }
@@ -398,9 +436,7 @@
     BOOL isCurrentSection = false;
     
     for(int i = 0; i < [tmp count]; i++ ) {
-        
         NSString *thisHeader = [[tmp objectAtIndex:i] valueForKey:@"sectionHeader"];
-        NSLog(@"Header: %@", thisHeader);
         if ( ![thisHeader isEqualToString:loopedHeader]) {
             loopedHeader = thisHeader;
             isCurrentSection = false;
@@ -474,11 +510,13 @@
                          r.origin.y = [_mainTableView frame].size.height;
                          [_mainTableView setFrame:r];
                          _mainTableView.alpha = 0;
-                         _navbar.alpha =0;
+                         _navbar.alpha = 0;
                      }
                      completion:^(BOOL finished){
+                         [self searchBarCancelButtonClicked:_searchBar];
                          [_navbar setHidden:YES];
                          [_mainTableView setHidden:YES];
+                         
                          [self.webView stringByEvaluatingJavaScriptFromString:@"window.plugins.NativeTable._onTableHideComplete();"];
                          
                      }];
