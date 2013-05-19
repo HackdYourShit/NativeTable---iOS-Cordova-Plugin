@@ -23,7 +23,7 @@
 		//NSLog(@"NativeTable Initialized!");
         
     }
-
+    
     return self;
 }
 
@@ -48,14 +48,14 @@
     NSString *navTitle = @"";
     navTitle = [options objectForKey:@"navTitle"];
     navItem.title = navTitle;
-
+    
     if ( [[options objectForKey:@"showRightButton"] boolValue] == true) {
         NSString *RightButtonTitle = [options objectForKey:@"RightButtonText"];
-
+        
         UIBarButtonItem *rightButton = [[UIBarButtonItem alloc] initWithTitle:RightButtonTitle
                                                                         style:UIBarButtonItemStyleDone
-                                                                        target:self
-                                                                        action:@selector(onRightButtonPress:) ];
+                                                                       target:self
+                                                                       action:@selector(onRightButtonPress:) ];
         
         navItem.rightBarButtonItem = rightButton;
         [rightButton release];
@@ -123,7 +123,7 @@
 
 
 - (void)setupSearchBar {
-
+    
     _searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, _mainTableView.frame.size.width, 44) ];
     self.mainTableView.tableHeaderView = _searchBar;
     
@@ -175,25 +175,25 @@
 	if(NO == [_mainTableView isHidden]){
 		return;
 	}
-		
+    
 	
 	_originalWebViewFrame = self.webView.frame;
 	
 	CGRect mainTableFrame, CDWebViewFrame;
 	
 	CDWebViewFrame = CGRectMake(
-								 _originalWebViewFrame.origin.x,
-								 _originalWebViewFrame.origin.y,
-								 _originalWebViewFrame.size.width,
-								 _originalWebViewFrame.size.height - _mainTableHeight
-								 );
+                                _originalWebViewFrame.origin.x,
+                                _originalWebViewFrame.origin.y,
+                                _originalWebViewFrame.size.width,
+                                _originalWebViewFrame.size.height - _mainTableHeight
+                                );
 	
 	mainTableFrame = CGRectMake(
-								 CDWebViewFrame.origin.x,
-								 CDWebViewFrame.origin.y + (CDWebViewFrame.size.height + _offsetTop),
-								 CDWebViewFrame.size.width,
-								 _mainTableHeight-_offsetTop
-								 );
+                                CDWebViewFrame.origin.x,
+                                CDWebViewFrame.origin.y + (CDWebViewFrame.size.height + _offsetTop),
+                                CDWebViewFrame.size.width,
+                                _mainTableHeight-_offsetTop
+                                );
 	
     [self.webView setFrame:CDWebViewFrame];
 	[_mainTableView setFrame:mainTableFrame];
@@ -201,7 +201,7 @@
     [self fadeIn];
     
 	//NSLog(@"ShowTable Called!");
-
+    
 }
 
 
@@ -239,7 +239,7 @@
             counter++;
         }
     }
-   // NSLog(@"Total Sections: %d", counter);
+    // NSLog(@"Total Sections: %d", counter);
     [tmp release];
     return counter;
 }
@@ -274,14 +274,14 @@
             rowsInSection++;
         }
     }
-//    NSLog(@"Section: %d Count: %d", section, rowsInSection);
+    //    NSLog(@"Section: %d Count: %d", section, rowsInSection);
     [tmp release];
     return rowsInSection;
     
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-   // NSLog(@"Requesting: %d", section);
+    // NSLog(@"Requesting: %d", section);
     NSMutableArray *tmp = [[NSMutableArray alloc] init];
     if (isFiltered) {
         tmp = _searchResults.copy;
@@ -312,13 +312,51 @@
 {
     static NSString *CellIdentifier = @"Cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {  
+    if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
     }
-	
-    NSDictionary *item = [_mainTableData objectAtIndex:indexPath.row];
+	int section = indexPath.section;
+    int row = indexPath.row;
+    
+    NSMutableArray *tmp = [[NSMutableArray alloc] init];
     if (isFiltered) {
-        item = [_searchResults objectAtIndex:indexPath.row];
+        tmp = _searchResults.copy;
+    } else {
+        tmp = _mainTableData.copy;
+    }
+    
+    int counter = 0;
+    int rowCounter = 0;
+    int sectionRowCounter = 0;
+    int actualRow = 0;
+    NSString *loopedHeader = @"";
+    BOOL isCurrentSection = false;
+    
+    for(int i = 0; i < [tmp count]; i++ ) {
+        NSString *thisHeader = [[tmp objectAtIndex:i] valueForKey:@"sectionHeader"];
+        if ( ![thisHeader isEqualToString:loopedHeader]) {
+            loopedHeader = thisHeader;
+            isCurrentSection = false;
+            if (counter == section) {
+                isCurrentSection = true;
+            }
+            counter++;
+        }
+        
+        if (isCurrentSection) {
+            if (sectionRowCounter == row ) {
+                actualRow = rowCounter;
+            }
+            sectionRowCounter++;
+        }
+        rowCounter++;
+    }
+    //    NSLog(@"Section: %d Count: %d", section, rowsInSection);
+    [tmp release];
+    
+    NSDictionary *item = [_mainTableData objectAtIndex:actualRow];
+    if (isFiltered) {
+        item = [_searchResults objectAtIndex:actualRow];
     }
     
     cell.textLabel.text = [item valueForKey:@"textLabel"];
