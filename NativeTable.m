@@ -491,6 +491,18 @@
     
 }
 
+- (void) removeDim {
+    //shitty hack
+    for( UIView *subview in self.webView.superview.subviews ) {
+        if( [subview isKindOfClass:[UIControl class]] ) {
+            UIControl *v = (UIControl*)subview;
+            if (v.alpha < 1) {
+                v.hidden = YES;
+            }
+        }
+    }
+    
+}
 
 -(void)fadeOut
 {
@@ -515,9 +527,10 @@
                      }
                      completion:^(BOOL finished){
                          [self searchBarCancelButtonClicked:_searchBar];
+                         
                          [_navbar setHidden:YES];
                          [_mainTableView setHidden:YES];
-                         
+                         [self removeDim];
                          [self.webView stringByEvaluatingJavaScriptFromString:@"window.plugins.NativeTable._onTableHideComplete();"];
                          
                      }];
